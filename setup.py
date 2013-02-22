@@ -11,7 +11,7 @@ setup(
     name="rapidsms-telerivet",
     version="0.0.1",
     description="A Telerivet SMS backend for RapidSMS",
-    long_description=read('README.md'),
+    long_description=read('README.rst'),
     author="TimbaObjects",
     author_email="info@timbaobjects.com",
     url="http://github.com/timbaobjects/rapidsms-telerivet/",
