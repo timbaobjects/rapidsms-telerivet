@@ -16,4 +16,7 @@ setup(
     author_email="info@timbaobjects.com",
     url="http://github.com/timbaobjects/rapidsms-telerivet/",
     packages=['rapidsms_telerivet'],
-    )
+    install_requires=[
+        "requests",
+    ],
+)

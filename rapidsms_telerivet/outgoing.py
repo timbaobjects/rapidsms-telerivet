@@ -1,6 +1,5 @@
-import urllib
-import urllib2
-import base64
+import requests
+from requests.auth import HTTPBasicAuth
 
 from rapidsms.backends.base import BackendBase
 
@@ -14,32 +13,46 @@ class TelerivetBackend(BackendBase):
         self.phone_id = phone_id
         self.api_key = api_key
 
-    def prepare_message(self, message):
+    def prepare_message(self, message=None, id_=None, text=None, identities=None, context=None):
         """Prepare URL query string with message context."""
-        query = {
-            'to_number': message.connection.identity,
-            'content': message.text,
-            'phone_id': self.phone_id
-        }
+        if message:
+            query = {
+                'to_number': message.connection.identity,
+                'content': message.text,
+                'phone_id': self.phone_id
+            }
+        else:
+            # unfortunately at this time, we can only send to one
+            # phone number using the REST API at a time
+            query = {
+                'to_number': identities[0] if isinstance(identities, list) else identities,
+                'content': text,
+                'phone_id': self.phone_id
+            }
+
         return query
 
-    def send(self, message):
+    def send(self, message=None, id_=None, text=None, identities=None, context=None):
         """Open request to Telerivet."""
-        self.info('Sending message: %s' % message)
-        url_args = self.prepare_message(message)
-        data = urllib.urlencode(url_args)
-        try:
-            self.debug('Opening URL: %s' % self.rest_endpoint)
-            req = urllib2.Request(self.rest_endpoint)
-            # Telerivet requires basic authentication using the api_key as username
-            # and anything as the password
-            basic_auth = base64.encodestring('{}:{}'.format(self.api_key, '*****')).replace('\n', '')
-            req.add_data(data)
-            req.add_header("Authorization", "Basic {}".format(basic_auth))
-            response = urllib2.urlopen(req)
-        except:
-            self.exception('Failed to send message')
-            return
+        if message:
+            self.info('Sending message: %s' % message)
+            url_args = self.prepare_message(message)
+            try:
+                self.debug('Opening URL: %s' % self.rest_endpoint)
+                response = requests.post(self.rest_endpoint, data=url_args, auth=HTTPBasicAuth(self.api_key, ''))
+            except:
+                self.exception('Failed to send message')
+                return
+        else:
+            self.info('Sending message: %s' % text)
+            for identity in identities:
+                url_args = self.prepare_message(id_=id_, text=text, identities=identity, context=context)
+                try:
+                    self.debug('Opening URL: %s' % self.rest_endpoint)
+                    response = requests.post(self.rest_endpoint, data=url_args, auth=HTTPBasicAuth(self.api_key, ''))
+                except:
+                    self.exception('Failed to send message')
+                    return
         self.info('SENT')
-        self.debug('response body: %s' % response.read())
+        self.debug('response body: %s' % response)
         return True
