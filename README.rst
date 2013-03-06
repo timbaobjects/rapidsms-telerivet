@@ -12,12 +12,16 @@ Installing
 
 Here's how to install rapidsms-telerivet:
 
+::
+
   $ pip install git+https://github.com/timbaobjects/rapidsms-telerivet.git#egg=rapidsms-telerivet
 
 Usage
 =====
 
-The first step is to configure a url for the backend.
+The first step is to configure a url for the backend in your ``urls.py``:
+
+::
 
   from rapidsms_telerivet.views import TelerivetBackendView
 
@@ -25,7 +29,9 @@ The first step is to configure a url for the backend.
     (r'^telerivet/', TelerivetBackendView.as_view(backend_name='telerivet')),
   )
 
-Secondly, just like every RapidSMS backend, you need to configure this in your settings.py:
+Secondly, just like every RapidSMS backend, you need to configure this in your ``settings.py``:
+
+::
 
   INSTALLED_BACKENDS = {
     "telerivet": {
