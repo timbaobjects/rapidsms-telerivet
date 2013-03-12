@@ -23,6 +23,15 @@ class TelerivetForm(BaseHttpForm):
             raise forms.ValidationError('Incorrect secret')
         return secret
 
+    def clean_phone_id(self):
+        # select the correct backend based on the phone_id
+        installed_backends = settings.INSTALLED_BACKENDS
+        phone_id = self.cleaned_data['phone_id']
+        backend = filter(lambda x: installed_backends[x].get('phone_id', None) == phone_id, installed_backends.keys())
+        if backend:
+            self.backend_name = backend[0]
+        return phone_id
+
     def get_incoming_data(self):
         connections = self.lookup_connections([self.cleaned_data['from_number']])
         return {'connection': connections[0],
