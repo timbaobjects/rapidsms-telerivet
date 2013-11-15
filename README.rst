@@ -35,7 +35,7 @@ Secondly, just like every RapidSMS backend, you need to configure this in your `
 
   INSTALLED_BACKENDS = {
     "telerivet": {
-        "ENGINE": "rapidsms_telerivet.outgoing",
+        "ENGINE": "rapidsms_telerivet.outgoing.TelerivetBackend",
         "project_id": "your telerivet project id",
         "phone_id": "phone id for one of the devices attached to your telerivet account",
         "secret": "the webhook trigger secret from telerivet",
